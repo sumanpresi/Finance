@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .overview-card {
+            grid-column: 1 / -1;
+        }
+        
+        .financial-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .metric.expense {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .metric.surplus {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3748;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .emi-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .emi-item:last-child {
+            border-bottom: none;
+        }
+        
+        .emi-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .emi-amount {
+            font-weight: bold;
+            color: #e53e3e;
+        }
+        
+        .priority-badge {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .priority-badge.high {
+            background: #e53e3e;
+        }
+        
+        .priority-badge.medium {
+            background: #ed8936;
+        }
+        
+        .breakdown-chart {
+            height: 200px;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .chart-bar {
+            background: linear-gradient(to top, #4facfe 0%, #00f2fe 100%);
+            border-radius: 4px 4px 0 0;
+            min-width: 40px;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        
+        .chart-label {
+            text-align: center;
+            font-size: 12px;
+            color: #4a5568;
+            margin-top: 8px;
+        }
+        
+        .action-items {
+            list-style: none;
+        }
+        
+        .action-items li {
+            padding: 10px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .action-items li::before {
+            content: "✓";
+            background: #48bb78;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .timeline-number {
+            background: #4facfe;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+        
+        .summary-item-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .summary-item-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Financial Overview -->
+        <div class="card overview-card">
+            <div class="card-title">
+                <div class="icon" style="background: #4facfe;">₹</div>
+                Monthly Financial Overview
+            </div>
+            <div class="financial-overview">
+                <div class="metric">
+                    <div class="metric-value">₹1,40,000</div>
+                    <div class="metric-label">Monthly Income</div>
+                </div>
+                <div class="metric expense">
+                    <div class="metric-value">₹1,31,886</div>
+                    <div class="metric-label">Total Expenses</div>
+                </div>
+                <div class="metric surplus">
+                    <div class="metric-value">₹8,114</div>
+                    <div class="metric-label">Monthly Surplus</div>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="font-size: 14px; color: #4a5568;">Budget Utilization</span>
+                    <span style="font-size: 14px; color: #4a5568;">94.2%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 94.2%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Breakdown -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon" style="background: #ed8936;">📊</div>
+                Expense Breakdown
+            </div>
+            <div class="breakdown-chart">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="chart-bar" style="height: 120px;">57%</div>
+                    <div class="chart-label">Compulsory<br>₹75,668</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="chart-bar" style="height: 80px;">38%</div>
+                    <div class="chart-label">EMIs<br>₹50,138</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="chart-bar" style="height: 12px;">5%</div>
+                    <div class="chart-label">Subscriptions<br>₹6,080</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority EMIs to Clear -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon" style="background: #e53e3e;">🎯</div>
+                Priority EMIs (Next 6 Months)
+            </div>
+            <div class="emi-item">
+                <div>
+                    <div class="emi-name">Pixel Buds</div>
+                    <span class="priority-badge high">URGENT</span>
+                </div>
+                <div class="emi-amount">₹750</div>
+            </div>
+            <div class="emi-item">
+                <div>
+                    <div class="emi-name">Fuji Lens</div>
+                    <span class="priority-badge high">HIGH</span>
+                </div>
+                <div class="emi-amount">₹2,000</div>
+            </div>
+            <div class="emi-item">
+                <div>
+                    <div class="emi-name">Sennheiser Earbuds</div>
+                    <span class="priority-badge medium">MEDIUM</span>
+                </div>
+                <div class="emi-amount">₹1,208</div>
+            </div>
+            <div class="emi-item">
+                <div>
+                    <div class="emi-name">Samsung Watch</div>
+                    <span class="priority-badge medium">MEDIUM</span>
+                </div>
+                <div class="emi-amount">₹1,908</div>
+            </div>
+        </div>
+
+        <!-- Action Plan -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon" style="background: #48bb78;">✓</div>
+                Immediate Action Items
+            </div>
+            <ul class="action-items">
+                <li>Pay off Pixel Buds EMI completely this month (₹3,000)</li>
+                <li>Use freed surplus to target Fuji Lens next month</li>
+                <li>Review and cancel non-essential subscriptions</li>
+                <li>Avoid taking new EMIs until debt-free</li>
+                <li>Direct any bonuses to EMI prepayment</li>
+            </ul>
+        </div>
+
+        <!-- Debt Snowball Timeline -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon" style="background: #805ad5;">📅</div>
+                Debt Snowball Timeline
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-number">1</div>
+                    <div>
+                        <strong>Month 1:</strong> Clear Pixel Buds (₹3,000)<br>
+                        <small style="color: #718096;">Surplus increases to ₹8,864</small>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">2</div>
+                    <div>
+                        <strong>Month 2:</strong> Clear Fuji Lens (₹10,000)<br>
+                        <small style="color: #718096;">Surplus increases to ₹10,864</small>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">3</div>
+                    <div>
+                        <strong>Month 3-4:</strong> Clear Sennheiser & Samsung Watch<br>
+                        <small style="color: #718096;">Continue snowball effect</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Summary -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon" style="background: #38b2ac;">📈</div>
+                Key Metrics
+            </div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-item-value">17</div>
+                    <div class="summary-item-label">Total EMIs</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-value">₹50K</div>
+                    <div class="summary-item-label">Monthly EMI</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-value">5.8%</div>
+                    <div class="summary-item-label">Surplus Rate</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-value">156</div>
+                    <div class="summary-item-label">Home Loan Months</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #e6fffa; border-radius: 8px; border-left: 4px solid #38b2ac;">
+                <strong style="color: #2d3748;">💡 Strategy:</strong> <span style="color: #4a5568;">Debt Snowball Method - Pay smallest EMIs first to build momentum and free up cash flow for larger debts.</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
